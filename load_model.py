@@ -2,10 +2,10 @@ from transformers import BertTokenizer, BertForSequenceClassification
 
 # Dictionary to map model names to their paths
 model_paths = {
-    "cahya/bert-base-indonesian-522M": r"C:\Users\Lenovo\Downloads\DasboardBert\cahya",
-    "indobenchmark/indobert-base-p2": r"C:\Users\Lenovo\Downloads\DasboardBert\indobench",
-    "indolem/indobert-base-uncased": r"C:\Users\Lenovo\Downloads\DasboardBert\indolem",
-    "mdhugol/indonesia-bert-sentiment-classification": r"C:\Users\Lenovo\Downloads\DasboardBert\mdhugol"
+    "cahya/bert-base-indonesian-522M": r"DasboardBert/cahya/model.safetensors",
+    "indobenchmark/indobert-base-p2": r"DasboardBert/indobench/model.safetensors",
+    "indolem/indobert-base-uncased": r"DasboardBert/indolem/model.safetensors",
+    "mdhugol/indonesia-bert-sentiment-classification": r"DasboardBert/mdhugol/model.safetensors"
 }
 
 # Function to load the selected model
