@@ -15,25 +15,25 @@ jobs:
       with:
         ref: main
 
-    - name: Checkout master branch for LFS files (cahya)
+    - name: Checkout main branch for LFS files (cahya)
       run: |
-        git fetch origin master
-        git checkout master -- DasboardBert/cahya/model.safetensors  # Hanya checkout model.safetensors dari path cahya
-
-    - name: Checkout master branch for LFS files (indobenchmark)
+        git fetch origin main
+        git checkout main -- DasboardBert/cahya/model.safetensors  # Hanya checkout model.safetensors dari path cahya
+    
+    - name: Checkout main branch for LFS files (indobenchmark)
       run: |
-        git fetch origin master
-        git checkout master -- DasboardBert/indobench/model.safetensors  # Hanya checkout model.safetensors dari path indobenchmark
-
-    - name: Checkout master branch for LFS files (indolem)
+        git fetch origin main
+        git checkout main -- DasboardBert/indobench/model.safetensors  # Hanya checkout model.safetensors dari path indobenchmark
+    
+    - name: Checkout main branch for LFS files (indolem)
       run: |
-        git fetch origin master
-        git checkout master -- DasboardBert/indolem/model.safetensors  # Hanya checkout model.safetensors dari path indolem
-
-    - name: Checkout master branch for LFS files (mdhugol)
+        git fetch origin main
+        git checkout main -- DasboardBert/indolem/model.safetensors  # Hanya checkout model.safetensors dari path indolem
+    
+    - name: Checkout main branch for LFS files (mdhugol)
       run: |
-        git fetch origin master
-        git checkout master -- DasboardBert/mdhugol/model.safetensors  # Hanya checkout model.safetensors dari path mdhugol
+        git fetch origin main
+        git checkout main -- DasboardBert/mdhugol/model.safetensors  # Hanya checkout model.safetensors dari path mdhugol
 
     - name: Install dependencies
       run: pip install -r requirements.txt
