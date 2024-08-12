@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 from lime.lime_text import LimeTextExplainer
-from test import predict_hoax, predict_proba_for_lime
+from prediksi import predict_hoax, predict_proba_for_lime
 import streamlit.components.v1 as components
 from load_model import load_model
 
