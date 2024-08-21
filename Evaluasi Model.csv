@@ -1,0 +1,6 @@
+Pre-trained Model,Label 0,,,Label 1,,,Accuracy
+,Precission,Recall,F1-Score,Precission,Recall,F1-Score,
+indobenchmark/indobert-base-p2,0.6898,0.9793,0.8094,0.84,0.1981,0.3206,0.7023
+cahya/bert-base-indonesian-522M,0.7545,0.8756,0.8106,0.68,0.4811,0.5635,0.7358
+indolem/indobert-base-uncased,0.7536,0.8238,0.7871,0.6136,0.5094,0.5567,0.7124
+mdhugol/indonesia-bert-sentiment-classification,0.7444,0.8601,0.7981,0.6447,0.4623,0.5385,0.7191
