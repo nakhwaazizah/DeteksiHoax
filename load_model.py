@@ -6,7 +6,7 @@ model_paths = {
     "cahya/bert-base-indonesian-522M": "Nakhwa/cahyabert",
     "indobenchmark/indobert-base-p2": "Nakhwa/indobenchmark",
     "indolem/indobert-base-uncased": "Nakhwa/indolem",
-    "mdhugol/indonesia-bert-sentiment-classification": "Nakhwa/cahyabert"
+    "mdhugol/indonesia-bert-sentiment-classification": "Nakhwa/mdhugol"
 }
 
 # Function to load the selected model
