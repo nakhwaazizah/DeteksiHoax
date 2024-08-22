@@ -3,14 +3,17 @@ import pandas as pd
 from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
 from test import predict_hoax, evaluate_model_performance
 from load_model import load_model
+from styles import COMMON_CSS
 
 def load_data(file):
     return pd.read_csv(file)
 
 def show_deteksi_upload():
-    # Dropdown for selecting a model
+    st.markdown(COMMON_CSS, unsafe_allow_html=True)
+    
+    st.markdown("<h6 style='font-size: 14px; margin-bottom: 0;'>Pilih Model</h6>", unsafe_allow_html=True)
     selected_model = st.selectbox(
-        "Pilih Model",
+        "",
         [
             "cahya/bert-base-indonesian-522M",
             "indobenchmark/indobert-base-p2",
@@ -24,7 +27,8 @@ def show_deteksi_upload():
     tokenizer, model = load_model(selected_model)
 
     # File uploader
-    uploaded_file = st.file_uploader("Unggah file disini", type="csv")
+    st.markdown("<h6 style='font-size: 14px; margin-bottom: -200px;'>Unggah File Disini</h6>", unsafe_allow_html=True)
+    uploaded_file = st.file_uploader("", type="csv")
 
     # Initialize session state for corrections
     if 'df' not in st.session_state:
