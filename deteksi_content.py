@@ -104,9 +104,17 @@ def show_deteksi_konten():
 
             # Save button
             if st.button("Simpan"):
+                # Create a formatted string with CSS for alignment and multi-line content handling
+                formatted_text = f"""
+                <div style='font-size: 14px;'>
+                    <p style='margin: 0;'><span style='display: inline-block; width: 120px; font-weight: bold;'>Title</span> : <span style='white-space: pre-wrap;'>{st.session_state.headline}</span></p>
+                    <p style='margin: 0;'><span style='display: inline-block; width: 120px; font-weight: bold;'>Content</span> : <span style='white-space: pre-wrap;'>{st.session_state.content}</span></p>
+                    <p style='margin: 0;'><span style='display: inline-block; width: 120px; font-weight: bold;'>Prediction</span> : {st.session_state.detection_result}</p>
+                    <p style='margin: 0;'><span style='display: inline-block; width: 120px; font-weight: bold;'>Correction</span> : {st.session_state.correction}</p>
+                </div>
+                """
+                
                 # Display the correction as text
-                st.markdown(f"<p style='font-size: 14px;'>Title         : {st.session_state.headline}</p>", unsafe_allow_html=True)
-                st.markdown(f"<p style='font-size: 14px;'>Content       : {st.session_state.content}</p>", unsafe_allow_html=True)
-                st.markdown(f"<p style='font-size: 14px;'>Prediction    : {st.session_state.detection_result}</p>", unsafe_allow_html=True)
-                st.markdown(f"<p style='font-size: 14px;'>Correction    : {st.session_state.correction}</p>", unsafe_allow_html=True)
+                st.markdown(formatted_text, unsafe_allow_html=True)
                 st.success("Koreksi telah disimpan.")
+
