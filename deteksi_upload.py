@@ -41,17 +41,24 @@ def show_deteksi_upload():
 
         st.write("#### Data yang Diunggah")
         
-        # Paginated DataFrame display for uploaded data
-        grid_options = GridOptionsBuilder.from_dataframe(df)
-        grid_options.configure_pagination(paginationAutoPageSize=False, paginationPageSize=10)
-        gridOptions = grid_options.build()
+        st.dataframe(df.style.set_properties(**{
+            'text-overflow': 'ellipsis', 
+            'overflow': 'hidden',         
+            'white-space': 'nowrap',     
+            'max-width': '150px',         
+        }), use_container_width=True)
+        
+        # # Paginated DataFrame display for uploaded data
+        # grid_options = GridOptionsBuilder.from_dataframe(df)
+        # grid_options.configure_pagination(paginationAutoPageSize=False, paginationPageSize=10)
+        # gridOptions = grid_options.build()
 
-        AgGrid(
-            df,
-            gridOptions=gridOptions,
-            update_mode=GridUpdateMode.VALUE_CHANGED,
-            use_container_width=True
-        )
+        # AgGrid(
+        #     df,
+        #     gridOptions=gridOptions,
+        #     update_mode=GridUpdateMode.VALUE_CHANGED,
+        #     use_container_width=True
+        # )
 
         if st.button("Deteksi", key="detect_upload"):
             try:
