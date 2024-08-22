@@ -28,7 +28,7 @@ def show_home():
     df['Content'] = df['Content'].astype(str)
 
     # Define additional stopwords
-    additional_stopwords = {"dan", "di", "yang", "ke", "dari", "untuk", "pada", "adalah", "sebuah", "dengan", "tersebut", "ini", "itu", "atau", "dalam", "juga", "adalah"}
+    additional_stopwords = {"dan", "di", "yang", "ke", "dari", "untuk", "pada", "adalah", "sebuah", "dengan", "tersebut", "ini", "itu", "atau", "dalam", "juga", "adalah", "yg", "tapi"}
 
     # Combine default stopwords with additional stopwords
     combined_stopwords = set(STOPWORDS).union(additional_stopwords)
@@ -167,6 +167,16 @@ def show_home():
         plt.axis('off')
         st.pyplot(fig_hoax)
     
+    # # Wordcloud for Non-Hoax
+    # with col5:
+    #     st.markdown("<h6 style='font-size: 14px; margin-bottom: 0;'>Wordcloud for Non-Hoax</h6>", unsafe_allow_html=True)
+    #     non_hoax_text = ' '.join(df[df['Label'] == 'NON-HOAX']['Content'])
+    #     wordcloud_non_hoax = generate_wordcloud(non_hoax_text, 'Greens', combined_stopwords)
+    #     fig_non_hoax = plt.figure(figsize=(5, 2.5))
+    #     plt.imshow(wordcloud_non_hoax, interpolation='bilinear')
+    #     plt.axis('off')
+    #     st.pyplot(fig_non_hoax)
+    
     with col6:
         st.markdown("<h6 style='font-size: 14px; margin-bottom: 0;'>Klasifikasi</h6>", unsafe_allow_html=True)
         df_classification_counts = df['Classification'].value_counts().reset_index()
@@ -264,7 +274,50 @@ def show_home():
 
     html_table += "</table>"
     # Tampilkan Tabel di Streamlit
-    col9 = st.columns([5])
-    with col9[0]:
+    col8 = st.columns([5])
+    with col8[0]:
         st.markdown("<h6 style='font-size: 14px; margin-bottom: 0;'>Evaluation Metrics</h6>", unsafe_allow_html=True)
         st.markdown(html_table, unsafe_allow_html=True)
+    
+
+
+    html_table_col9 = """
+    <div style='text-align: center;'>
+        <table style="width: 100%; margin: 10px 0; font-size: 12px; border-collapse: collapse;">
+            <thead>
+                <tr style="border-bottom: 1px solid #ddd;">
+                    <th style="padding: 5px;">Label</th>
+                    <th style="padding: 5px;">Train</th>
+                    <th style="padding: 5px;">Test</th>
+                    <th style="padding: 5px;">Dev</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="padding: 5px; text-align: center;">HOAX</td>
+                    <td style="padding: 5px; text-align: center;">11,563</td>
+                    <td style="padding: 5px; text-align: center;">193</td>
+                    <td style="padding: 5px; text-align: center;">193</td>
+                </tr>
+                <tr>
+                    <td style="padding: 5px; text-align: center;">NON-HOAX</td>
+                    <td style="padding: 5px; text-align: center;">789</td>
+                    <td style="padding: 5px; text-align: center;">106</td>
+                    <td style="padding: 5px; text-align: center;">106</td>
+                </tr>
+                <tr style="background-color: #e0e0e0; font-weight: bold;">
+                    <td style="padding: 5px; text-align: center;">TOTAL</td>
+                    <td style="padding: 5px; text-align: center;">12,352</td>
+                    <td style="padding: 5px; text-align: center;">299</td>
+                    <td style="padding: 5px; text-align: center;">299</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    """
+
+    # Display the table in col9 using HTML
+    col9 = st.columns([1])  # Adjust the number and width of columns as needed
+    with col9[0]:
+        st.markdown("<h6 style='font-size: 14px; margin-bottom: 0;'>Statistik Data</h6>", unsafe_allow_html=True)
+        st.markdown(html_table_col9, unsafe_allow_html=True)
