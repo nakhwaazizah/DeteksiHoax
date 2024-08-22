@@ -130,29 +130,6 @@ def show_home():
 
         st.plotly_chart(bar_chart_topics, use_container_width=True)
 
-
-    # Visualization 4: Horizontal Bar chart for Topics per Year using Plotly
-    # with col4:
-    #     st.markdown("<h6 style='font-size: 14px; margin-bottom: 0;'>Topics per Tahun</h6>", unsafe_allow_html=True)
-    #     df_mafindo['Tanggal'] = pd.to_datetime(df_mafindo['Tanggal'], format='%d/%m/%Y')
-    #     df_mafindo['Year'] = df_mafindo['Tanggal'].dt.year
-
-    #     # Filter the data to include only years up to 2023
-    #     df_mafindo_filtered = df_mafindo[df_mafindo['Year'] <= 2023]
-
-    #     topics_per_year = df_mafindo_filtered.groupby(['Year', 'Topic']).size().reset_index(name='count')
-
-    #     # Create the horizontal bar chart
-    #     bar_chart_topics = px.bar(topics_per_year, x='count', y='Topic', color='Year', orientation='h',
-    #                               color_continuous_scale=px.colors.sequential.Viridis)
-    #     bar_chart_topics.update_layout(
-    #         width=300, height=150, xaxis_title='Jumlah Topik', yaxis_title='Topic',
-    #         xaxis_title_font_size=10, yaxis_title_font_size=10,
-    #         xaxis_tickfont_size=8, yaxis_tickfont_size=8, margin=dict(t=10, b=10, l=10, r=10),
-    #         showlegend=True
-    #     )
-    #     st.plotly_chart(bar_chart_topics, use_container_width=False)
-
         
     # Create a new row for WordCloud visualizations
     col5, col6, col7 = st.columns([2, 2.5, 2.5])
@@ -166,16 +143,6 @@ def show_home():
         plt.imshow(wordcloud_hoax, interpolation='bilinear')
         plt.axis('off')
         st.pyplot(fig_hoax)
-    
-    # # Wordcloud for Non-Hoax
-    # with col5:
-    #     st.markdown("<h6 style='font-size: 14px; margin-bottom: 0;'>Wordcloud for Non-Hoax</h6>", unsafe_allow_html=True)
-    #     non_hoax_text = ' '.join(df[df['Label'] == 'NON-HOAX']['Content'])
-    #     wordcloud_non_hoax = generate_wordcloud(non_hoax_text, 'Greens', combined_stopwords)
-    #     fig_non_hoax = plt.figure(figsize=(5, 2.5))
-    #     plt.imshow(wordcloud_non_hoax, interpolation='bilinear')
-    #     plt.axis('off')
-    #     st.pyplot(fig_non_hoax)
     
     with col6:
         st.markdown("<h6 style='font-size: 14px; margin-bottom: 0;'>Klasifikasi</h6>", unsafe_allow_html=True)
@@ -230,9 +197,6 @@ def show_home():
             )
         )
         st.plotly_chart(donut_chart_tone, use_container_width=True)
-
-
-
         
     # Evaluation Metrics Table
     data = [
@@ -278,38 +242,36 @@ def show_home():
     with col8[0]:
         st.markdown("<h6 style='font-size: 14px; margin-bottom: 0;'>Evaluation Metrics</h6>", unsafe_allow_html=True)
         st.markdown(html_table, unsafe_allow_html=True)
-    
-
 
     html_table_col9 = """
     <div style='text-align: center;'>
-        <table style="width: 100%; margin: 10px 0; font-size: 12px; border-collapse: collapse;">
+        <table style="width: 100%; margin: -5px 0; font-size: 12px; border-collapse: collapse; border: 1px solid black;">
             <thead>
-                <tr style="background-color: #e0e0e0; border-bottom: 1px solid #ddd;">
-                    <th style="padding: 5px;">Label</th>
-                    <th style="padding: 5px;">Train</th>
-                    <th style="padding: 5px;">Test</th>
-                    <th style="padding: 5px;">Dev</th>
+                <tr style="background-color: #e0e0e0;">
+                    <th style="padding: 8px; border: 1px solid black; font-weight: bold;">Label</th>
+                    <th style="padding: 8px; border: 1px solid black; font-weight: bold;">Train</th>
+                    <th style="padding: 8px; border: 1px solid black; font-weight: bold;">Test</th>
+                    <th style="padding: 8px; border: 1px solid black; font-weight: bold;">Dev</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td style="padding: 5px; text-align: center;">HOAX</td>
-                    <td style="padding: 5px; text-align: center;">11,563</td>
-                    <td style="padding: 5px; text-align: center;">193</td>
-                    <td style="padding: 5px; text-align: center;">193</td>
+                <tr style="border-bottom: 1px solid black;">
+                    <td style="padding: 8px; border: 1px solid black; text-align: center;">HOAX</td>
+                    <td style="padding: 8px; border: 1px solid black; text-align: center;">11,563</td>
+                    <td style="padding: 8px; border: 1px solid black; text-align: center;">193</td>
+                    <td style="padding: 8px; border: 1px solid black; text-align: center;">193</td>
                 </tr>
-                <tr>
-                    <td style="padding: 5px; text-align: center;">NON-HOAX</td>
-                    <td style="padding: 5px; text-align: center;">789</td>
-                    <td style="padding: 5px; text-align: center;">106</td>
-                    <td style="padding: 5px; text-align: center;">106</td>
+                <tr style="border-bottom: 1px solid black;">
+                    <td style="padding: 8px; border: 1px solid black; text-align: center;">NON-HOAX</td>
+                    <td style="padding: 8px; border: 1px solid black; text-align: center;">789</td>
+                    <td style="padding: 8px; border: 1px solid black; text-align: center;">106</td>
+                    <td style="padding: 8px; border: 1px solid black; text-align: center;">106</td>
                 </tr>
-                <tr style="font-weight: bold;">
-                    <td style="padding: 5px; text-align: center;">TOTAL</td>
-                    <td style="padding: 5px; text-align: center;">12,352</td>
-                    <td style="padding: 5px; text-align: center;">299</td>
-                    <td style="padding: 5px; text-align: center;">299</td>
+                <tr style="font-weight: bold; border-top: 1px solid black;">
+                    <td style="padding: 8px; border: 1px solid black; text-align: center;">TOTAL</td>
+                    <td style="padding: 8px; border: 1px solid black; text-align: center;">12,352</td>
+                    <td style="padding: 8px; border: 1px solid black; text-align: center;">299</td>
+                    <td style="padding: 8px; border: 1px solid black; text-align: center;">299</td>
                 </tr>
             </tbody>
         </table>
