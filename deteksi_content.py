@@ -6,8 +6,11 @@ from test import predict_hoax, predict_proba_for_lime
 import streamlit.components.v1 as components
 from load_model import load_model
 from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
+from styles import COMMON_CSS
 
 def show_deteksi_konten():
+    st.markdown(COMMON_CSS, unsafe_allow_html=True)
+
     if 'correction' not in st.session_state:
         st.session_state.correction = None
     if 'detection_result' not in st.session_state:
@@ -22,8 +25,9 @@ def show_deteksi_konten():
         st.session_state.is_correct = None
 
     # Dropdown for selecting a model
+    st.markdown("<h6 style='font-size: 14px; margin-bottom: 0;'>Pilih Model</h6>", unsafe_allow_html=True)
     selected_model = st.selectbox(
-        "Pilih Model",
+        "",
         [
             "cahya/bert-base-indonesian-522M",
             "indobenchmark/indobert-base-p2",
@@ -36,8 +40,11 @@ def show_deteksi_konten():
     # Load the selected model
     tokenizer, model = load_model(selected_model)
 
-    st.session_state.headline = st.text_input("Masukkan judul berita", value=st.session_state.headline)
-    st.session_state.content = st.text_area("Masukkan konten berita", value=st.session_state.content)
+    st.markdown("<h6 style='font-size: 14px; margin-bottom: 0;'>Masukkan Judul Berita :</h6>", unsafe_allow_html=True)
+    st.session_state.headline = st.text_input("", value=st.session_state.headline)
+
+    st.markdown("<h6 style='font-size: 14px; margin-bottom: 0;'>Masukkan Konten Berita :</h6>", unsafe_allow_html=True)
+    st.session_state.content = st.text_area("", value=st.session_state.content)
 
     # Detection button
     if st.button("Deteksi", key="detect_content"):
@@ -57,14 +64,29 @@ def show_deteksi_konten():
             st.session_state.lime_explanation = explanation.as_html()
 
     # Display the detection result and LIME explanation if available
-    if st.session_state.detection_result is not None:
-        st.success(f"Prediksi: {st.session_state.detection_result}")
+    # if st.session_state.detection_result is not None:
+    #     st.success(f"Prediksi: {st.session_state.detection_result}")
     if st.session_state.lime_explanation:
-        components.html(st.session_state.lime_explanation, height=200, scrolling=True)
+        lime_html = st.session_state.lime_explanation
+
+        # Inject CSS for font size adjustment
+        lime_html = f"""
+        <style>
+        .lime-text-explanation, .lime-highlight, .lime-classification, 
+        .lime-text-explanation * {{
+            font-size: 14px !important;
+        }}
+        </style>
+        <div class="lime-text-explanation">
+            {lime_html}
+        </div>
+        """
+        components.html(lime_html, height=200, scrolling=True)
 
     # Display a radio button asking if the detection result is correct
     if st.session_state.detection_result is not None:
-        st.session_state.is_correct = st.radio("Apakah hasil deteksi sudah benar?", ("Ya", "Tidak"))
+        st.markdown("<h6 style='font-size: 16px; margin-bottom: -150px;'>Apakah hasil deteksi sudah benar?</h6>", unsafe_allow_html=True)
+        st.session_state.is_correct = st.radio("", ("Ya", "Tidak"))
 
         if st.session_state.is_correct == "Ya":
             st.success("Deteksi sudah benar.")
@@ -83,8 +105,8 @@ def show_deteksi_konten():
             # Save button
             if st.button("Simpan"):
                 # Display the correction as text
-                st.markdown(f"<p style='font-size: 14px;'>Title: {st.session_state.headline}</p>", unsafe_allow_html=True)
-                st.markdown(f"<p style='font-size: 14px;'>Content: {st.session_state.content}</p>", unsafe_allow_html=True)
-                st.markdown(f"<p style='font-size: 14px;'>Prediction: {st.session_state.detection_result}</p>", unsafe_allow_html=True)
-                st.markdown(f"<p style='font-size: 14px;'>Correction: {st.session_state.correction}</p>", unsafe_allow_html=True)
+                st.markdown(f"<p style='font-size: 14px;'>Title         : {st.session_state.headline}</p>", unsafe_allow_html=True)
+                st.markdown(f"<p style='font-size: 14px;'>Content       : {st.session_state.content}</p>", unsafe_allow_html=True)
+                st.markdown(f"<p style='font-size: 14px;'>Prediction    : {st.session_state.detection_result}</p>", unsafe_allow_html=True)
+                st.markdown(f"<p style='font-size: 14px;'>Correction    : {st.session_state.correction}</p>", unsafe_allow_html=True)
                 st.success("Koreksi telah disimpan.")
