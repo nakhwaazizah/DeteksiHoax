@@ -4,7 +4,7 @@ import streamlit as st
 # Dictionary to map model names to their paths
 model_paths = {
     "cahya/bert-base-indonesian-522M": "Nakhwa/cahyabert",
-    "indobenchmark/indobert-base-p2": "Nakhwa/cahyabert",
+    "indobenchmark/indobert-base-p2": "Nakhwa/indobenchmark",
     "indolem/indobert-base-uncased": "Nakhwa/cahyabert",
     "mdhugol/indonesia-bert-sentiment-classification": "Nakhwa/cahyabert"
 }
