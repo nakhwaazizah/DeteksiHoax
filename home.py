@@ -285,7 +285,7 @@ def show_home():
     <div style='text-align: center;'>
         <table style="width: 100%; margin: 10px 0; font-size: 12px; border-collapse: collapse;">
             <thead>
-                <tr style="border-bottom: 1px solid #ddd;">
+                <tr style="background-color: #e0e0e0; border-bottom: 1px solid #ddd;">
                     <th style="padding: 5px;">Label</th>
                     <th style="padding: 5px;">Train</th>
                     <th style="padding: 5px;">Test</th>
@@ -305,7 +305,7 @@ def show_home():
                     <td style="padding: 5px; text-align: center;">106</td>
                     <td style="padding: 5px; text-align: center;">106</td>
                 </tr>
-                <tr style="background-color: #e0e0e0; font-weight: bold;">
+                <tr style="font-weight: bold;">
                     <td style="padding: 5px; text-align: center;">TOTAL</td>
                     <td style="padding: 5px; text-align: center;">12,352</td>
                     <td style="padding: 5px; text-align: center;">299</td>
