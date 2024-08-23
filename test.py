@@ -33,7 +33,6 @@ def predict_hoax(title, content):
 # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # model.to(device)
 
-@st.cache_data
 # LIME prediction function
 def predict_proba_for_lime(texts):
     results = []
