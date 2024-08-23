@@ -39,26 +39,18 @@ def show_deteksi_upload():
         df = load_data(uploaded_file)
         df.index = df.index + 1
 
-        st.write("#### Data yang Diunggah")
-        
-        st.dataframe(df.style.set_properties(**{
-            'text-overflow': 'ellipsis', 
-            'overflow': 'hidden',         
-            'white-space': 'nowrap',     
-            'max-width': '150px',         
-        }), use_container_width=True)
-        
-        # # Paginated DataFrame display for uploaded data
-        # grid_options = GridOptionsBuilder.from_dataframe(df)
-        # grid_options.configure_pagination(paginationAutoPageSize=False, paginationPageSize=10)
-        # gridOptions = grid_options.build()
+        st.markdown("<h6 style='font-size: 16px; margin-bottom: 0;'>Data yang Diunggah</h6>", unsafe_allow_html=True)
 
-        # AgGrid(
-        #     df,
-        #     gridOptions=gridOptions,
-        #     update_mode=GridUpdateMode.VALUE_CHANGED,
-        #     use_container_width=True
-        # )
+        grid_options = GridOptionsBuilder.from_dataframe(df)
+        grid_options.configure_pagination(paginationAutoPageSize=False, paginationPageSize=10)
+        gridOptions = grid_options.build()
+
+        AgGrid(
+            df,
+            gridOptions=gridOptions,
+            update_mode=GridUpdateMode.VALUE_CHANGED,
+            use_container_width=True
+        )
 
         if st.button("Deteksi", key="detect_upload"):
             try:
@@ -74,13 +66,26 @@ def show_deteksi_upload():
 
     # Display detection results if available
     if st.session_state.df is not None:
-        st.write("### Hasil Deteksi")
+
+        accuracy, precision, recall, f1 = evaluate_model_performance(st.session_state.df, tokenizer, model)
+        performance_df = pd.DataFrame({
+            'Metric': ['Accuracy', 'Precision', 'Recall', 'F1 Score'],
+            'Value': [round(accuracy, 2), round(precision, 2), round(recall, 2), round(f1, 2)]
+        })
+        st.markdown("<h6 style='font-size: 16px; margin-bottom: 0;'>Performansi Model</h6>", unsafe_allow_html=True)
+        st.dataframe(performance_df, use_container_width=True, hide_index=True)
+
+        st.markdown("<h6 style='font-size: 16px; margin-bottom: 0;'>Hasil Deteksi</h6>", unsafe_allow_html=True)
+
+        # Reorder columns to bring 'Correction' and 'Result' to the front
+        cols = ['Correction', 'Result'] + [col for col in st.session_state.df.columns if col not in ['Correction', 'Result']]
+        df_reordered = st.session_state.df[cols]
 
         # Simplify the AgGrid setup
-        grid_options = GridOptionsBuilder.from_dataframe(st.session_state.df)
+        grid_options = GridOptionsBuilder.from_dataframe(df_reordered)
         grid_options.configure_pagination(paginationAutoPageSize=False, paginationPageSize=10)
         grid_options.configure_default_column(editable=True, groupable=True)
-        grid_options.configure_column("Content", width=100)
+        grid_options.configure_column('Content', width=50)
         gridOptions = grid_options.build()
 
         # Use AgGrid to display the DataFrame
@@ -113,7 +118,7 @@ def show_deteksi_upload():
                     axis=1
                 )
 
-                st.write("### Data yang Dikoreksi")
+                st.markdown("<h6 style='font-size: 16px; margin-bottom: 0;'>Data yang Dikoreksi</h6>", unsafe_allow_html=True)
                 st.dataframe(corrected_df.drop(columns=['Correction']), use_container_width=True)
             else:
                 st.write("Tidak ada data yang dikoreksi.")
@@ -126,15 +131,6 @@ def show_deteksi_upload():
                     corrected_df.to_csv("corrected_df.csv", index=False)
                     st.success("Data telah disimpan.")
                     st.session_state.corrected_df = corrected_df
-
-                    # Evaluate model performance on corrected data
-                    accuracy, precision, recall, f1 = evaluate_model_performance(df, tokenizer, model)
-                    performance_df = pd.DataFrame({
-                        'Metric': ['Accuracy', 'Precision', 'Recall', 'F1 Score'],
-                        'Value': [round(accuracy, 2), round(precision, 2), round(recall, 2), round(f1, 2)]
-                    })
-                    st.write("### Performansi Model")
-                    st.dataframe(performance_df, use_container_width=True)
                 else:
                     st.warning("Tidak ada data yang dikoreksi untuk disimpan.")
             else:
