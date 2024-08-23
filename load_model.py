@@ -10,7 +10,7 @@ model_paths = {
 }
 
 # Function to load the selected model
-@st.cache_data
+@st.cache_resource
 def load_model(model_name):
     path = model_paths[model_name]
     tokenizer = BertTokenizer.from_pretrained(path)
