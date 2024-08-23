@@ -3,6 +3,11 @@ from torch.nn.functional import softmax
 from load_model import load_model  # Import the load_model function
 import numpy as np
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+import streamlit as st
+
+@st.cache_resource
+def get_model_and_tokenizer(model_name):
+    return load_model(model_name)
 
 # Initialize default model (could be anything, or even load dynamically)
 default_model_name = "cahya/bert-base-indonesian-522M"
@@ -25,6 +30,10 @@ def predict_hoax(title, content):
     label = 'HOAX' if pred == 1 else 'NON-HOAX'
     return label
 
+# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# model.to(device)
+
+@st.cache_data
 # LIME prediction function
 def predict_proba_for_lime(texts):
     results = []
@@ -36,34 +45,20 @@ def predict_proba_for_lime(texts):
         results.append(probs[0])
     return np.array(results)
 
-def evaluate_model_performance(corrected_df, tokenizer, model):
-    # Prepare the inputs and labels
-    texts = corrected_df.apply(lambda row: f"{row['Title']} [SEP] {row['Content']}", axis=1).tolist()
-    true_labels = corrected_df['Final_Result'].apply(lambda x: 1 if x == 'HOAX' else 0).tolist()
-    
-    # Predict
-    inputs = tokenizer(texts, return_tensors='pt', padding=True, truncation=True, max_length=256, is_split_into_words=False)
-    with torch.no_grad():
-        outputs = model(**inputs)
-    
-    logits = outputs.logits
-    probs = softmax(logits, dim=1)
-    preds = torch.argmax(probs, dim=1).cpu().numpy()
-    
-    # Debug: print some predictions and labels
-    print("Predictions:", preds)
-    print("True Labels:", true_labels)
-    
-    # Calculate metrics
-    accuracy = accuracy_score(true_labels, preds)
-    precision = precision_score(true_labels, preds, zero_division=1)
-    recall = recall_score(true_labels, preds, zero_division=1)
-    f1 = f1_score(true_labels, preds, zero_division=1)
-    
-    # Debug: print metric values
-    print("Accuracy:", accuracy)
-    print("Precision:", precision)
-    print("Recall:", recall)
-    print("F1 Score:", f1)
-    
+def evaluate_model_performance(df, tokenizer, model):
+    true_labels = []
+    pred_labels = []
+
+    for index, row in df.iterrows():
+        true_label = row['Label']  # Menggunakan 'Title' sebagai label sebenarnya karena tidak ada 'Final_Result'
+        pred_label = predict_hoax(row['Title'], row['Content'])
+        
+        true_labels.append(1 if true_label == 'HOAX' else 0)
+        pred_labels.append(1 if pred_label == 'HOAX' else 0)
+
+    accuracy = accuracy_score(true_labels, pred_labels)
+    precision = precision_score(true_labels, pred_labels, average='binary')
+    recall = recall_score(true_labels, pred_labels, average='binary')
+    f1 = f1_score(true_labels, pred_labels, average='binary')
+
     return accuracy, precision, recall, f1
