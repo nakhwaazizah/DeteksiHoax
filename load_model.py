@@ -3,10 +3,10 @@ import streamlit as st
 
 # Dictionary to map model names to their paths
 model_paths = {
-    "cahya/bert-base-indonesian-522M": "Nakhwa/cahyabert",
-    "indobenchmark/indobert-base-p2": "Nakhwa/indobenchmark",
-    "indolem/indobert-base-uncased": "Nakhwa/indolem",
-    "mdhugol/indonesia-bert-sentiment-classification": "Nakhwa/mdhugol"
+    "cahya/bert-base-indonesian-522M": "nlp-brin-id/cahyabert",
+    "indobenchmark/indobert-base-p2": "nlp-brin-id/indobenchmark",
+    "indolem/indobert-base-uncased": "nlp-brin-id/indolem",
+    "mdhugol/indonesia-bert-sentiment-classification": "nlp-brin-id/mdhugol"
 }
 
 # Function to load the selected model
