@@ -14,16 +14,15 @@ import pytz
 
 destination_file_name = '/tmp/json-file.json'
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = destination_file_name
+bucket_name = 'dashboardhoax-bucket'
+source_blob_name = 'dashboardhoax-bucket/inbound-source-431806-g7-e49e388ce0be.json'
 
 def download_json_from_gcs(bucket_name, source_blob_name, destination_file_name):
     storage_client = storage.Client()
-    bucket = storage_client.bucket(dashboardhoax-bucket)
-    blob = bucket.blob(inbound-source-431806-g7-e49e388ce0be.json)
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(source_blob_name)
     blob.download_to_filename(destination_file_name)
     print(f"Downloaded storage object {source_blob_name} from bucket {bucket_name} to local file {destination_file_name}.")
-
-bucket_name = 'dashboardhoax-bucket'
-source_blob_name = 'dashboardhoax-bucket/inbound-source-431806-g7-e49e388ce0be.json'
 
 # Unduh file JSON dari GCS
 download_json_from_gcs(bucket_name, source_blob_name, destination_file_name)
