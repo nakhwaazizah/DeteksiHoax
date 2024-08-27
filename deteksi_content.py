@@ -14,7 +14,7 @@ import pytz
 
 # os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r"C:\Users\Lenovo\Downloads\DasboardBert\inbound-source-431806-g7-e49e388ce0be.json"
 
-destination_file_name = '/tmp/json-file.json'
+destination_file_name = '/tmp/inbound-source-431806-g7-e49e388ce0be.json'
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = destination_file_name
 bucket_name = 'dashboardhoax-bucket'
 source_blob_name = 'dashboardhoax-bucket/inbound-source-431806-g7-e49e388ce0be.json'
