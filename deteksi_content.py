@@ -1,30 +1,58 @@
 import streamlit as st
-from datetime import datetime
 import pandas as pd
-from lime.lime_text import LimeTextExplainer
-from test import predict_hoax, predict_proba_for_lime
-import streamlit.components.v1 as components
-from load_model import load_model
 from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
+from test import predict_hoax, evaluate_model_performance
+from load_model import load_model
 from styles import COMMON_CSS
+from google.cloud import storage
+from io import StringIO
+import os
+from datetime import datetime
+import pytz
 
-def show_deteksi_konten():
+# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r"C:\Users\Lenovo\Downloads\DasboardBert\inbound-source-431806-g7-e49e388ce0be.json"
+
+def download_json_from_gcs(bucket_name, source_blob_name, destination_file_name):
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(source_blob_name)
+    blob.download_to_filename(destination_file_name)
+    print(f"Downloaded storage object {source_blob_name} from bucket {bucket_name} to local file {destination_file_name}.")
+
+# Konfigurasi
+bucket_name = 'dashboardhoax-bucket'
+source_blob_name = 'dashboardhoax-bucket/inbound-source-431806-g7-e49e388ce0be.json'
+destination_file_name = '/tmp/json-file.json'
+
+# Unduh file JSON dari GCS
+download_json_from_gcs(bucket_name, source_blob_name, destination_file_name)
+
+# Gunakan file JSON yang diunduh
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = destination_file_name
+
+def save_corrections_to_gcs(bucket_name, file_name, correction_data):
+    client = storage.Client()
+    bucket = client.bucket("dashboardhoax-bucket")
+    blob = bucket.blob("koreksi_pengguna_file.csv")
+
+    if blob.exists():
+        existing_data = blob.download_as_string().decode('utf-8')
+        existing_df = pd.read_csv(StringIO(existing_data))
+    else:
+        existing_df = pd.DataFrame(columns=['Timestamp', 'Label_id', 'Label', 'Title', 'Content', 'Fact', 'References', 'Classification', 'Datasource', 'Result_Detection', 'Result_Correction'])
+
+    new_data_df = pd.DataFrame(correction_data)
+    updated_df = pd.concat([existing_df, new_data_df], ignore_index=True)
+
+    updated_csv_data = updated_df.to_csv(index=False)
+    blob.upload_from_string(updated_csv_data, content_type='text/csv')
+
+def load_data(file):
+    return pd.read_csv(file)
+
+def show_deteksi_upload():
     st.markdown(COMMON_CSS, unsafe_allow_html=True)
-
-    if 'correction' not in st.session_state:
-        st.session_state.correction = None
-    if 'detection_result' not in st.session_state:
-        st.session_state.detection_result = None
-    if 'lime_explanation' not in st.session_state:
-        st.session_state.lime_explanation = None
-    if 'headline' not in st.session_state:
-        st.session_state.headline = ""
-    if 'content' not in st.session_state:
-        st.session_state.content = ""
-    if 'is_correct' not in st.session_state:
-        st.session_state.is_correct = None
-
-    # Dropdown for selecting a model
+    
     st.markdown("<h6 style='font-size: 14px; margin-bottom: 0;'>Pilih Model</h6>", unsafe_allow_html=True)
     selected_model = st.selectbox(
         "",
@@ -34,87 +62,118 @@ def show_deteksi_konten():
             "indolem/indobert-base-uncased",
             "mdhugol/indonesia-bert-sentiment-classification"
         ],
-        key="model_selector_content"
+        key="model_selector_upload"
     )
 
-    # Load the selected model
     tokenizer, model = load_model(selected_model)
 
-    st.markdown("<h6 style='font-size: 14px; margin-bottom: 0;'>Masukkan Judul Berita :</h6>", unsafe_allow_html=True)
-    st.session_state.headline = st.text_input("", value=st.session_state.headline)
+    st.markdown("<h6 style='font-size: 14px; margin-bottom: -200px;'>Unggah File Disini</h6>", unsafe_allow_html=True)
+    uploaded_file = st.file_uploader("", type="csv")
 
-    st.markdown("<h6 style='font-size: 14px; margin-bottom: 0;'>Masukkan Konten Berita :</h6>", unsafe_allow_html=True)
-    st.session_state.content = st.text_area("", value=st.session_state.content)
+    if 'df' not in st.session_state:
+        st.session_state.df = None
 
-    # Detection button
-    if st.button("Deteksi", key="detect_content"):
-        st.session_state.detection_result = predict_hoax(st.session_state.headline, st.session_state.content)
-        st.success(f"Prediksi: {st.session_state.detection_result}")
+    if uploaded_file is not None:
+        df = load_data(uploaded_file)
+        df.index = df.index + 1
 
-        # Prepare the text for LIME
-        lime_texts = [f"{st.session_state.headline} [SEP] {st.session_state.content}"]
+        st.markdown("<h6 style='font-size: 16px; margin-bottom: 0;'>Data yang Diunggah</h6>", unsafe_allow_html=True)
 
-        # Add a spinner and progress bar to indicate processing
-        with st.spinner("Sedang memproses LIME, harap tunggu..."):
-            # Explain the prediction
-            explainer = LimeTextExplainer(class_names=['NON-HOAX', 'HOAX'])
-            explanation = explainer.explain_instance(lime_texts[0], predict_proba_for_lime, num_features=5, num_samples=1000)
+        grid_options = GridOptionsBuilder.from_dataframe(df)
+        grid_options.configure_pagination(paginationAutoPageSize=False, paginationPageSize=10)
+        grid_options.configure_default_column(cellStyle={'fontSize': '12px'})
+        gridOptions = grid_options.build()
 
-            # Save the LIME explanation in session state
-            st.session_state.lime_explanation = explanation.as_html()
+        AgGrid(
+            df,
+            gridOptions=gridOptions,
+            update_mode=GridUpdateMode.VALUE_CHANGED,
+            use_container_width=True
+        )
 
-    # Display the detection result and LIME explanation if available
-    # if st.session_state.detection_result is not None:
-    #     st.success(f"Prediksi: {st.session_state.detection_result}")
-    if st.session_state.lime_explanation:
-        lime_html = st.session_state.lime_explanation
+        if st.button("Deteksi", key="detect_upload"):
+            try:
+                df['Result_Detection'] = df.apply(lambda row: predict_hoax(row['Title'], row['Content']), axis=1)
+                df['Correction'] = False 
+                st.session_state.df = df.copy()
+            except Exception as e:
+                st.error(f"Terjadi kesalahan saat deteksi: {e}")
 
-        # Inject CSS for font size adjustment
-        lime_html = f"""
-        <style>
-        .lime-text-explanation, .lime-highlight, .lime-classification, 
-        .lime-text-explanation * {{
-            font-size: 14px !important;
-        }}
-        </style>
-        <div class="lime-text-explanation">
-            {lime_html}
-        </div>
-        """
-        components.html(lime_html, height=200, scrolling=True)
+    if st.session_state.df is not None:
+        if 'Label' in st.session_state.df.columns:
+            accuracy, precision, recall, f1 = evaluate_model_performance(st.session_state.df, tokenizer, model)
+            performance_text = (
+                f"*Performansi Model*\n\n"
+                f"*Accuracy:* {round(accuracy, 2)}&nbsp;&nbsp;"
+                f"*Precision:* {round(precision, 2)}&nbsp;&nbsp;"
+                f"*Recall:* {round(recall, 2)}&nbsp;&nbsp;"
+                f"*F1 Score:* {round(f1, 2)}"
+            )
+            st.success(performance_text)
 
-    # Display a radio button asking if the detection result is correct
-    if st.session_state.detection_result is not None:
-        st.markdown("<h6 style='font-size: 16px; margin-bottom: -150px;'>Apakah hasil deteksi sudah benar?</h6>", unsafe_allow_html=True)
-        st.session_state.is_correct = st.radio("", ("Ya", "Tidak"))
+        st.markdown("<h6 style='font-size: 16px; margin-bottom: 0;'>Hasil Deteksi</h6>", unsafe_allow_html=True)
 
-        if st.session_state.is_correct == "Ya":
-            st.success("Deteksi sudah benar.")
-        else:
-            # Determine the correction based on the prediction
-            st.session_state.correction = "HOAX" if st.session_state.detection_result == "NON-HOAX" else "NON-HOAX"
+        cols = ['Correction', 'Result_Detection'] + [col for col in st.session_state.df.columns if col not in ['Correction', 'Result_Detection', 'Label_id']]
+        df_reordered = st.session_state.df[cols]
 
-            # Display the correction DataFrame
-            correction_data = pd.DataFrame([{
-                'Title': st.session_state.headline,
-                'Content': st.session_state.content,
-                'Prediction': st.session_state.detection_result,
-                'Correction': st.session_state.correction
-            }])
+        grid_options = GridOptionsBuilder.from_dataframe(df_reordered)
+        grid_options.configure_pagination(paginationAutoPageSize=False, paginationPageSize=10)
+        grid_options.configure_default_column(editable=True, groupable=True)
+        grid_options.configure_default_column(cellStyle={'fontSize': '12px'})
+        gridOptions = grid_options.build()
 
-            # Save button
-            if st.button("Simpan"):
-                # Create a formatted string with CSS for alignment and multi-line content handling
-                formatted_text = f"""
-                <div style='font-size: 14px;'>
-                    <p style='margin: 0;'><span style='display: inline-block; width: 120px; font-weight: bold;'>Title</span> : <span style='white-space: pre-wrap;'>{st.session_state.headline}</span></p>
-                    <p style='margin: 0;'><span style='display: inline-block; width: 120px; font-weight: bold;'>Content</span> : <span style='white-space: pre-wrap;'>{st.session_state.content}</span></p>
-                    <p style='margin: 0;'><span style='display: inline-block; width: 120px; font-weight: bold;'>Prediction</span> : {st.session_state.detection_result}</p>
-                    <p style='margin: 0;'><span style='display: inline-block; width: 120px; font-weight: bold;'>Correction</span> : {st.session_state.correction}</p>
-                </div>
-                """
-                
-                # Display the correction as text
-                st.markdown(formatted_text, unsafe_allow_html=True)
-                st.success("Koreksi telah disimpan.")
+        grid_response = AgGrid(
+            st.session_state.df,
+            gridOptions=gridOptions,
+            update_mode=GridUpdateMode.VALUE_CHANGED
+        )
 
+        if grid_response['data'] is not None:
+            edited_df = pd.DataFrame(grid_response['data'])
+            st.session_state.df = edited_df.copy()
+            corrected_df = edited_df[edited_df['Correction']].copy()
+
+            edited_df['Result_Correction'] = edited_df.apply(lambda row: 
+                'HOAX' if (row['Result_Detection'] == 'NON-HOAX' and row['Correction']) else 
+                ('NON-HOAX' if (row['Result_Detection'] == 'HOAX' and row['Correction']) else row['Result_Detection']), 
+                axis=1
+            )
+
+            st.session_state.df = edited_df.copy()
+
+            if not corrected_df.empty:
+                expected_cols = ['Timestamp', 'Result_Detection', 'Result_Correction', 'Label_id', 'Label', 'Title', 'Content', 'Fact', 'References', 'Classification', 'Datasource']
+                existing_cols = [col for col in expected_cols if col in corrected_df.columns]
+
+                # Tambahkan Timestamp hanya untuk penyimpanan
+                wib = pytz.timezone('Asia/Jakarta')
+                corrected_df['Timestamp'] = datetime.now(wib).strftime('%Y-%m-%d %H:%M:%S')
+
+                corrected_df_to_display = corrected_df[existing_cols]
+
+                st.markdown("<h6 style='font-size: 16px; margin-bottom: 0;'>Data yang Dikoreksi</h6>", unsafe_allow_html=True)
+                st.dataframe(corrected_df_to_display, use_container_width=True, hide_index=True)
+            else:
+                st.write("Tidak ada data yang dikoreksi.")
+        
+        if st.button("Simpan", key="corrected_data"):
+            if 'df' in st.session_state:
+                corrected_df = st.session_state.df[st.session_state.df['Correction']].copy()
+                wib = pytz.timezone('Asia/Jakarta')
+                corrected_df['Timestamp'] = datetime.now(wib).strftime('%Y-%m-%d %H:%M:%S')
+                corrected_df = corrected_df.drop(columns=['Correction'])
+
+                if not corrected_df.empty:
+                    bucket_name = "your-bucket-name"
+                    file_name = "corrected_upload_data.csv"
+                    
+                    correction_data = corrected_df.to_dict(orient='records')
+                    
+                    save_corrections_to_gcs(bucket_name, file_name, correction_data)
+                    
+                    st.success("Data telah disimpan.")
+                    st.session_state.corrected_df = corrected_df
+                else:
+                    st.warning("Tidak ada data yang dikoreksi untuk disimpan.")
+            else:
+                st.warning("Data deteksi tidak ditemukan.")
